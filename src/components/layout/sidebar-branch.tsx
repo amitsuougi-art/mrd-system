@@ -1,14 +1,15 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, List } from "lucide-react";
+import { Home, PlusCircle, List, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { href: "/branch/dashboard", label: "ダッシュボード", icon: Home },
   { href: "/branch/deals/new", label: "新規案件登録", icon: PlusCircle },
   { href: "/branch/deals", label: "案件一覧", icon: List },
+  { href: "/branch/market", label: "仕切レート確認", icon: TrendingUp },
 ];
 
 export function SidebarBranch() {

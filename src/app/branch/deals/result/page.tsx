@@ -37,7 +37,13 @@ export default function ActiveResultPage() {
     );
   }
 
-  const result = deal.result;
+  // Safety fallback: if the deal exists but result is null (e.g. race condition),
+  // compute it immediately so the page never shows zero or empty.
+  const result = deal.result ?? (() => {
+    const computed = calculatePrepaymentFee(deal.input);
+    updateDeal(deal.dealId, (d) => ({ ...d, result: computed, status: "CALCULATED", updatedAt: new Date().toISOString() }));
+    return computed;
+  })();
 
   const handleRecalculate = async () => {
     setIsRecalculating(true);

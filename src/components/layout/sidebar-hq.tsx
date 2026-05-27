@@ -1,13 +1,14 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, List, Calendar, BarChart3, Settings } from "lucide-react";
+import { Home, List, Calendar, BarChart3, Settings, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { href: "/headquarters/dashboard", label: "本部ダッシュボード", icon: Home },
   { href: "/headquarters/deals", label: "案件一覧（全店）", icon: List },
+  { href: "/branch/market", label: "仕切レート照会", icon: TrendingUp },
   { href: "#", label: "朝業務メニュー", icon: Calendar, disabled: true },
   { href: "#", label: "日次一覧", icon: BarChart3, disabled: true },
   { href: "#", label: "マスタ管理", icon: Settings, disabled: true },
