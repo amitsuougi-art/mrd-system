@@ -10,8 +10,6 @@ import {
   Tooltip,
   Legend,
   ReferenceLine,
-  Area,
-  AreaChart,
 } from "recharts";
 import { MOCK_L_SHIKIRI_CURVE, MOCK_TIBOR_SWAP_CURVE } from "@/lib/mock-market-data";
 import { formatDateTime } from "@/lib/format";
@@ -24,9 +22,13 @@ import { useState } from "react";
 // ─────────────────────────────────────────────
 function interpolateRate(points: YieldCurvePoint[], years: number): number {
   if (years <= points[0].tenorYears) return points[0].rate;
-  if (years >= points[points.length - 1].tenorYears) return points[points.length - 1].rate;
+  if (years >= points[points.length - 1].tenorYears)
+    return points[points.length - 1].rate;
   for (let i = 0; i < points.length - 1; i++) {
-    if (years >= points[i].tenorYears && years <= points[i + 1].tenorYears) {
+    if (
+      years >= points[i].tenorYears &&
+      years <= points[i + 1].tenorYears
+    ) {
       const ratio =
         (years - points[i].tenorYears) /
         (points[i + 1].tenorYears - points[i].tenorYears);
@@ -36,21 +38,35 @@ function interpolateRate(points: YieldCurvePoint[], years: number): number {
   return points[points.length - 1].rate;
 }
 
-// Build combined chart data (union of all tenors)
+// Build combined chart data with categorical tenor labels (evenly spaced)
 function buildChartData() {
-  const tenorMap = new Map<number, { tenor: string; tenorYears: number; lShikiri?: number; tiborSwap?: number }>();
-  MOCK_L_SHIKIRI_CURVE.points.forEach((p) => {
-    tenorMap.set(p.tenorYears, { tenor: p.tenor, tenorYears: p.tenorYears, lShikiri: p.rate });
-  });
+  // Merge all unique tenors by tenorYears
+  const tenorMap = new Map<
+    number,
+    { tenor: string; tenorYears: number; lShikiri?: number; tiborSwap?: number }
+  >();
+  MOCK_L_SHIKIRI_CURVE.points.forEach((p) =>
+    tenorMap.set(p.tenorYears, {
+      tenor: p.tenor,
+      tenorYears: p.tenorYears,
+      lShikiri: p.rate,
+    })
+  );
   MOCK_TIBOR_SWAP_CURVE.points.forEach((p) => {
     const existing = tenorMap.get(p.tenorYears);
     if (existing) {
       existing.tiborSwap = p.rate;
     } else {
-      tenorMap.set(p.tenorYears, { tenor: p.tenor, tenorYears: p.tenorYears, tiborSwap: p.rate });
+      tenorMap.set(p.tenorYears, {
+        tenor: p.tenor,
+        tenorYears: p.tenorYears,
+        tiborSwap: p.rate,
+      });
     }
   });
-  return Array.from(tenorMap.values()).sort((a, b) => a.tenorYears - b.tenorYears);
+  return Array.from(tenorMap.values()).sort(
+    (a, b) => a.tenorYears - b.tenorYears
+  );
 }
 
 const CHART_DATA = buildChartData();
@@ -62,42 +78,69 @@ const REMAINING_YEARS = 3.068;
 // ─────────────────────────────────────────────
 interface TooltipPayloadItem {
   name: string;
-  value: number;
+  value: number | undefined;
   color: string;
+  dataKey: string;
 }
 
 function CustomTooltip({
   active,
   payload,
-  label,
 }: {
   active?: boolean;
   payload?: TooltipPayloadItem[];
   label?: string;
 }) {
   if (!active || !payload || !payload.length) return null;
+
+  // Get tenor info from the first payload entry's data
+  const point = CHART_DATA.find(
+    (d) =>
+      d.lShikiri === payload[0]?.value || d.tiborSwap === payload[0]?.value
+  );
+  const tenorLabel =
+    payload[0]?.name === "lShikiri"
+      ? CHART_DATA.find((d) => d.lShikiri === payload[0]?.value)?.tenor
+      : CHART_DATA.find((d) => d.tiborSwap === payload[0]?.value)?.tenor;
+
+  // Use payload from chart
+  const lEntry = payload.find((p) => p.dataKey === "lShikiri");
+  const tEntry = payload.find((p) => p.dataKey === "tiborSwap");
+  const displayTenor = lEntry
+    ? CHART_DATA.find((d) => d.lShikiri === lEntry.value)?.tenor
+    : tEntry
+    ? CHART_DATA.find((d) => d.tiborSwap === tEntry.value)?.tenor
+    : tenorLabel;
+
   return (
     <div
       className="rounded-lg px-4 py-3 text-xs"
       style={{
-        background: "rgba(8,15,30,0.95)",
-        border: "1px solid rgba(0,200,255,0.25)",
+        background: "rgba(8,15,30,0.97)",
+        border: "1px solid rgba(0,200,255,0.28)",
         boxShadow: "0 0 16px rgba(0,200,255,0.15)",
       }}
     >
-      <p className="font-semibold text-slate-200 mb-2">Tenor: {label}Y</p>
-      {payload.map((entry) => (
-        <p key={entry.name} className="flex items-center gap-2 mb-0.5">
-          <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ background: entry.color }}
-          />
-          <span className="text-slate-400">{entry.name}:</span>
-          <span className="font-mono font-semibold" style={{ color: entry.color }}>
-            {entry.value.toFixed(5)}%
-          </span>
-        </p>
-      ))}
+      <p className="font-semibold text-slate-200 mb-2">
+        Tenor: {displayTenor ?? point?.tenor}
+      </p>
+      {[
+        { key: "lShikiri", label: "L仕切カーブ", color: "#00c8ff", entry: lEntry },
+        { key: "tiborSwap", label: "TIBORスワップ", color: "#a78bfa", entry: tEntry },
+      ].map(({ key, label, color, entry }) =>
+        entry?.value !== undefined ? (
+          <p key={key} className="flex items-center gap-2 mb-0.5">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: color }}
+            />
+            <span className="text-slate-400">{label}:</span>
+            <span className="font-mono font-semibold" style={{ color }}>
+              {(entry.value as number).toFixed(5)}%
+            </span>
+          </p>
+        ) : null
+      )}
     </div>
   );
 }
@@ -124,15 +167,21 @@ function CurveTable({
         className="rounded-xl overflow-hidden"
         style={{
           background: "rgba(11,22,40,0.80)",
-          border: `1px solid rgba(0,200,255,0.12)`,
+          border: "1px solid rgba(0,200,255,0.12)",
         }}
       >
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(0,200,255,0.08)" }}>
-              <th className="text-left px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">Tenor</th>
-              <th className="text-right px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">年数</th>
-              <th className="text-right px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">Bid Rate (%)</th>
+              <th className="text-left px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">
+                Tenor
+              </th>
+              <th className="text-right px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">
+                年数
+              </th>
+              <th className="text-right px-4 py-2 text-slate-500 text-[10px] uppercase tracking-wider">
+                Bid Rate (%)
+              </th>
               <th className="px-4 py-2 hidden sm:table-cell" />
             </tr>
           </thead>
@@ -141,10 +190,19 @@ function CurveTable({
               <tr
                 key={pt.tenor}
                 className="hover:bg-white/[0.03] transition-colors"
-                style={{ borderBottom: idx < points.length - 1 ? "1px solid rgba(0,200,255,0.06)" : undefined }}
+                style={{
+                  borderBottom:
+                    idx < points.length - 1
+                      ? "1px solid rgba(0,200,255,0.06)"
+                      : undefined,
+                }}
               >
-                <td className="px-4 py-2 text-slate-200 text-xs font-medium">{pt.tenor}</td>
-                <td className="px-4 py-2 text-right font-mono text-slate-500 text-[11px]">{pt.tenorYears.toFixed(4)}</td>
+                <td className="px-4 py-2 text-slate-200 text-xs font-medium">
+                  {pt.tenor}
+                </td>
+                <td className="px-4 py-2 text-right font-mono text-slate-500 text-[11px]">
+                  {pt.tenorYears.toFixed(4)}
+                </td>
                 <td
                   className="px-4 py-2 text-right font-mono text-xs font-semibold"
                   style={{ color: accentColor }}
@@ -176,9 +234,20 @@ function CurveTable({
 export default function MarketDataPage() {
   const [view, setView] = useState<"chart" | "table">("chart");
 
-  const tiborRate = interpolateRate(MOCK_TIBOR_SWAP_CURVE.points, REMAINING_YEARS);
+  const tiborRate = interpolateRate(
+    MOCK_TIBOR_SWAP_CURVE.points,
+    REMAINING_YEARS
+  );
   const rateDiff = CONTRACT_RATE - tiborRate;
   const acquiredAt = MOCK_TIBOR_SWAP_CURVE.acquiredAt;
+
+  // Find the tenor label closest to REMAINING_YEARS for reference line
+  const remainingTenorLabel = CHART_DATA.reduce((prev, curr) =>
+    Math.abs(curr.tenorYears - REMAINING_YEARS) <
+    Math.abs(prev.tenorYears - REMAINING_YEARS)
+      ? curr
+      : prev
+  ).tenor;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -193,16 +262,23 @@ export default function MarketDataPage() {
           </div>
           <p className="text-sm text-slate-500 mt-1 ml-9">
             取得日時：
-            <span className="font-mono text-slate-400">{formatDateTime(acquiredAt)}</span>
+            <span className="font-mono text-slate-400">
+              {formatDateTime(acquiredAt)}
+            </span>
             &nbsp;|&nbsp;Base Date：
-            <span className="font-mono text-slate-400">{MOCK_TIBOR_SWAP_CURVE.baseDate}</span>
+            <span className="font-mono text-slate-400">
+              {MOCK_TIBOR_SWAP_CURVE.baseDate}
+            </span>
           </p>
         </div>
 
         {/* View toggle */}
         <div
           className="flex items-center rounded-lg p-0.5 self-start sm:self-auto"
-          style={{ background: "rgba(11,22,40,0.9)", border: "1px solid rgba(0,200,255,0.15)" }}
+          style={{
+            background: "rgba(11,22,40,0.9)",
+            border: "1px solid rgba(0,200,255,0.15)",
+          }}
         >
           {(["chart", "table"] as const).map((v) => (
             <button
@@ -211,11 +287,19 @@ export default function MarketDataPage() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
               style={
                 view === v
-                  ? { background: "rgba(0,200,255,0.15)", color: "#00c8ff", boxShadow: "0 0 8px rgba(0,200,255,0.2)" }
+                  ? {
+                      background: "rgba(0,200,255,0.15)",
+                      color: "#00c8ff",
+                      boxShadow: "0 0 8px rgba(0,200,255,0.2)",
+                    }
                   : { color: "#64748b" }
               }
             >
-              {v === "chart" ? <BarChart2 className="h-3.5 w-3.5" /> : <Table2 className="h-3.5 w-3.5" />}
+              {v === "chart" ? (
+                <BarChart2 className="h-3.5 w-3.5" />
+              ) : (
+                <Table2 className="h-3.5 w-3.5" />
+              )}
               {v === "chart" ? "グラフ" : "テーブル"}
             </button>
           ))}
@@ -226,53 +310,63 @@ export default function MarketDataPage() {
       {view === "chart" && (
         <div
           className="rounded-xl p-6"
-          style={{ background: "rgba(11,22,40,0.85)", border: "1px solid rgba(0,200,255,0.12)" }}
+          style={{
+            background: "rgba(11,22,40,0.85)",
+            border: "1px solid rgba(0,200,255,0.12)",
+          }}
         >
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="h-4 w-4 text-cyber-cyan" />
-            <h2 className="text-sm font-semibold text-slate-200">イールドカーブ比較</h2>
+            <h2 className="text-sm font-semibold text-slate-200">
+              イールドカーブ比較
+            </h2>
           </div>
-          <p className="text-[11px] text-slate-500 mb-6 ml-6">L仕切カーブ vs 日本円TIBORスワップ — Bid Rate (%)</p>
+          <p className="text-[11px] text-slate-500 mb-6 ml-6">
+            全テナー等間隔表示 ／ L仕切カーブ vs 日本円TIBORスワップ — Bid
+            Rate (%)
+          </p>
 
-          <ResponsiveContainer width="100%" height={340}>
-            <AreaChart data={CHART_DATA} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="gradL" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00c8ff" stopOpacity={0.18} />
-                  <stop offset="95%" stopColor="#00c8ff" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradT" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.18} />
-                  <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
-                </linearGradient>
-              </defs>
+          <ResponsiveContainer width="100%" height={360}>
+            <LineChart
+              data={CHART_DATA}
+              margin={{ top: 16, right: 32, left: 0, bottom: 24 }}
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="rgba(0,200,255,0.06)"
-                vertical={false}
+                vertical={true}
               />
+
+              {/* Categorical X-axis: each tenor evenly spaced */}
               <XAxis
-                dataKey="tenorYears"
-                type="number"
-                domain={[0, 10]}
-                ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                tickFormatter={(v) => `${v}Y`}
-                tick={{ fill: "#64748b", fontSize: 11 }}
+                dataKey="tenor"
+                type="category"
+                tick={{ fill: "#64748b", fontSize: 10 }}
                 axisLine={{ stroke: "rgba(0,200,255,0.1)" }}
-                tickLine={false}
+                tickLine={{ stroke: "rgba(0,200,255,0.1)" }}
+                angle={-35}
+                textAnchor="end"
+                height={48}
+                interval={0}
               />
+
               <YAxis
-                domain={[0, 1.4]}
-                tickFormatter={(v) => `${v.toFixed(2)}%`}
+                domain={[0, 1.6]}
+                tickFormatter={(v: number) => `${v.toFixed(2)}%`}
                 tick={{ fill: "#64748b", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 width={58}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(0,200,255,0.2)", strokeWidth: 1 }} />
+
+              <Tooltip content={<CustomTooltip />} />
               <Legend
-                wrapperStyle={{ fontSize: 11, color: "#94a3b8", paddingTop: 12 }}
-                formatter={(value) =>
+                wrapperStyle={{
+                  fontSize: 11,
+                  color: "#94a3b8",
+                  paddingTop: 4,
+                }}
+                formatter={(value: string) =>
                   value === "lShikiri" ? "L仕切カーブ" : "TIBORスワップ"
                 }
               />
@@ -280,63 +374,89 @@ export default function MarketDataPage() {
               {/* Contract rate reference line */}
               <ReferenceLine
                 y={CONTRACT_RATE}
-                stroke="rgba(251,191,36,0.6)"
-                strokeDasharray="5 4"
+                stroke="rgba(251,191,36,0.7)"
+                strokeDasharray="6 4"
+                strokeWidth={1.5}
                 label={{
                   value: `約定金利 ${CONTRACT_RATE}%`,
                   position: "insideTopRight",
                   fill: "#fbbf24",
                   fontSize: 10,
+                  dy: -6,
                 }}
               />
 
-              {/* Remaining years reference line */}
+              {/* Remaining years reference line (closest tenor) */}
               <ReferenceLine
-                x={REMAINING_YEARS}
-                stroke="rgba(255,255,255,0.15)"
+                x={remainingTenorLabel}
+                stroke="rgba(255,255,255,0.18)"
                 strokeDasharray="4 4"
+                strokeWidth={1}
                 label={{
-                  value: `残存 ${REMAINING_YEARS}Y`,
-                  position: "top",
+                  value: `残存≈${REMAINING_YEARS}Y`,
+                  position: "insideTopRight",
                   fill: "#94a3b8",
-                  fontSize: 10,
+                  fontSize: 9,
+                  dy: -20,
                 }}
               />
 
-              <Area
+              <Line
                 type="monotone"
                 dataKey="lShikiri"
                 name="lShikiri"
                 stroke="#00c8ff"
-                strokeWidth={2}
-                fill="url(#gradL)"
-                dot={{ fill: "#00c8ff", r: 3, strokeWidth: 0 }}
-                activeDot={{ r: 5, fill: "#00c8ff", strokeWidth: 0 }}
+                strokeWidth={2.5}
+                dot={{ fill: "#00c8ff", r: 3.5, strokeWidth: 0 }}
+                activeDot={{
+                  r: 6,
+                  fill: "#00c8ff",
+                  strokeWidth: 0,
+                  style: { filter: "drop-shadow(0 0 6px #00c8ff)" },
+                }}
                 connectNulls
               />
-              <Area
+              <Line
                 type="monotone"
                 dataKey="tiborSwap"
                 name="tiborSwap"
                 stroke="#a78bfa"
-                strokeWidth={2}
-                fill="url(#gradT)"
-                dot={{ fill: "#a78bfa", r: 3, strokeWidth: 0 }}
-                activeDot={{ r: 5, fill: "#a78bfa", strokeWidth: 0 }}
+                strokeWidth={2.5}
+                strokeDasharray="6 3"
+                dot={{ fill: "#a78bfa", r: 3.5, strokeWidth: 0 }}
+                activeDot={{
+                  r: 6,
+                  fill: "#a78bfa",
+                  strokeWidth: 0,
+                  style: { filter: "drop-shadow(0 0 6px #a78bfa)" },
+                }}
                 connectNulls
               />
-            </AreaChart>
+            </LineChart>
           </ResponsiveContainer>
 
-          {/* Legend annotation */}
-          <div className="flex flex-wrap gap-4 mt-4 ml-2 text-[11px] text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-px w-8 bg-amber-400/60" style={{ borderTop: "2px dashed rgba(251,191,36,0.6)" }} />
-              約定金利ライン
+          {/* Annotation row */}
+          <div className="flex flex-wrap gap-5 mt-2 ml-14 text-[11px] text-slate-500">
+            <span className="flex items-center gap-2">
+              <span
+                className="inline-block w-7 h-0"
+                style={{ borderTop: "2px dashed rgba(251,191,36,0.65)" }}
+              />
+              約定金利 {CONTRACT_RATE}%
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-px w-8" style={{ borderTop: "2px dashed rgba(255,255,255,0.2)" }} />
-              残存年数ライン（参考）
+            <span className="flex items-center gap-2">
+              <span
+                className="inline-block w-7 h-0"
+                style={{ borderTop: "2px dashed rgba(255,255,255,0.22)" }}
+              />
+              残存年数（{REMAINING_YEARS}Y、{remainingTenorLabel}付近）
+            </span>
+            <span className="flex items-center gap-2">
+              <span
+                className="inline-block w-7 h-0"
+                style={{ borderTop: "2.5px solid #a78bfa", borderStyle: "dashed" }}
+              />
+              TIBORスワップ（破線）
             </span>
           </div>
         </div>
@@ -412,7 +532,9 @@ export default function MarketDataPage() {
                   className="rounded-lg px-4 py-3 text-center"
                   style={{ background: item.bg, border: `1px solid ${item.border}` }}
                 >
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">{item.label}</p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                    {item.label}
+                  </p>
                   <p
                     className="font-mono text-lg font-bold"
                     style={{ color: item.color }}
@@ -424,9 +546,11 @@ export default function MarketDataPage() {
               ))}
             </div>
             <p className="text-xs text-slate-600 mt-3">
-              ※ 約定金利 {CONTRACT_RATE}%、繰上返済日 2026-06-05、固定期日 2029-06-30（残存 ≈ {REMAINING_YEARS}Y）の場合、
-              TIBORスワップ 3Y（0.55%）〜5Y（0.75%）を線形補間し再運用レート {tiborRate.toFixed(5)}% を算出。
-              金利差 {rateDiff.toFixed(5)}% に元本・期間を乗じて PV 計算した結果が期限前弁済手数料となります。
+              ※ 約定金利 {CONTRACT_RATE}%、繰上返済日 2026-06-05、固定期日
+              2029-06-30（残存 ≈ {REMAINING_YEARS}Y）の場合、TIBORスワップ
+              3Y（0.55%）〜5Y（0.75%）を線形補間し再運用レート{" "}
+              {tiborRate.toFixed(5)}% を算出。金利差 {rateDiff.toFixed(5)}{" "}
+              % に元本・期間を乗じて PV 計算した結果が期限前弁済手数料となります。
             </p>
           </div>
         </div>
