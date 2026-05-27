@@ -183,8 +183,8 @@ export default function NewDealPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">期限前弁済手数料 算出依頼</h1>
-          <p className="text-sm text-gray-500 mt-1">固定金利融資の期限前弁済手数料を試算します</p>
+          <h1 className="text-2xl font-bold text-slate-100">期限前弁済手数料 算出依頼</h1>
+          <p className="text-sm text-slate-400 mt-1">固定金利融資の期限前弁済手数料を試算します</p>
         </div>
       </div>
 
@@ -295,8 +295,8 @@ export default function NewDealPage() {
             <div className="flex gap-4 mt-2">
               {[{ value: "POST", label: "後取" }, { value: "PRE", label: "前取" }].map(({ value, label }) => (
                 <label key={value} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" value={value} checked={form.schedule.interestReceiveType === value} onChange={() => update("schedule", "interestReceiveType", value)} className="h-4 w-4 text-bank-primary" />
-                  <span className="text-sm">{label}</span>
+                  <input type="radio" value={value} checked={form.schedule.interestReceiveType === value} onChange={() => update("schedule", "interestReceiveType", value)} className="h-4 w-4 accent-cyber-cyan" />
+                  <span className="text-sm text-slate-300">{label}</span>
                 </label>
               ))}
             </div>
@@ -362,9 +362,9 @@ export default function NewDealPage() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {form.prepayment.isSyndicatedLoan && (
-            <div className="md:col-span-2 p-3 bg-yellow-50 border border-yellow-300 rounded-lg flex gap-2">
-              <AlertTriangle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-800">シローン該当案件は手計算による補完が必要です</p>
+            <div className="md:col-span-2 p-3 bg-cyber-amber/10 border border-cyber-amber/30 rounded-lg flex gap-2">
+              <AlertTriangle className="h-4 w-4 text-cyber-amber shrink-0 mt-0.5" />
+              <p className="text-sm text-cyber-amber/90">シローン該当案件は手計算による補完が必要です</p>
             </div>
           )}
           <div>
@@ -401,8 +401,8 @@ export default function NewDealPage() {
                 { value: "DEFAULT", label: "破綻" },
               ].map(({ value, label }) => (
                 <label key={value} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" value={value} checked={form.prepayment.executionMethod === value} onChange={() => update("prepayment", "executionMethod", value)} className="h-4 w-4 text-bank-primary" />
-                  <span className="text-sm">{label}</span>
+                  <input type="radio" value={value} checked={form.prepayment.executionMethod === value} onChange={() => update("prepayment", "executionMethod", value)} className="h-4 w-4 accent-cyber-cyan" />
+                  <span className="text-sm text-slate-300">{label}</span>
                 </label>
               ))}
             </div>
@@ -423,8 +423,8 @@ export default function NewDealPage() {
             <div className="flex gap-4 mt-2">
               {[{ value: true, label: "有" }, { value: false, label: "無" }].map(({ value, label }) => (
                 <label key={label} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" checked={form.prepayment.isSyndicatedLoan === value} onChange={() => update("prepayment", "isSyndicatedLoan", value)} className="h-4 w-4 text-bank-primary" />
-                  <span className="text-sm">{label}</span>
+                  <input type="radio" checked={form.prepayment.isSyndicatedLoan === value} onChange={() => update("prepayment", "isSyndicatedLoan", value)} className="h-4 w-4 accent-cyber-cyan" />
+                  <span className="text-sm text-slate-300">{label}</span>
                 </label>
               ))}
             </div>
@@ -434,8 +434,8 @@ export default function NewDealPage() {
             <div className="flex gap-4 mt-2">
               {[{ value: true, label: "有" }, { value: false, label: "無" }].map(({ value, label }) => (
                 <label key={label} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" checked={form.prepayment.hasFeeReduction === value} onChange={() => update("prepayment", "hasFeeReduction", value)} className="h-4 w-4 text-bank-primary" />
-                  <span className="text-sm">{label}</span>
+                  <input type="radio" checked={form.prepayment.hasFeeReduction === value} onChange={() => update("prepayment", "hasFeeReduction", value)} className="h-4 w-4 accent-cyber-cyan" />
+                  <span className="text-sm text-slate-300">{label}</span>
                 </label>
               ))}
             </div>

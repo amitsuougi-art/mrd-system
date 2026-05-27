@@ -5,7 +5,7 @@ import { SidebarBranch } from "@/components/layout/sidebar-branch";
 
 export default function BranchLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-bank-bg flex flex-col">
+    <div className="min-h-screen bg-cyber-bg flex flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <SidebarBranch />

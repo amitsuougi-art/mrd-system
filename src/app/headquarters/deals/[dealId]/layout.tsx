@@ -1,8 +1,12 @@
-export const dynamicParams = false;
-
 export function generateStaticParams() {
-  // Return placeholder for static export; actual routing handled client-side via zustand
-  return [{ dealId: "placeholder" }];
+  return [
+    { dealId: "placeholder" },
+    { dealId: "deal-001" },
+    { dealId: "deal-002" },
+    { dealId: "deal-003" },
+    { dealId: "deal-004" },
+    { dealId: "deal-005" },
+  ];
 }
 
 export default function HQDealLayout({ children }: { children: React.ReactNode }) {

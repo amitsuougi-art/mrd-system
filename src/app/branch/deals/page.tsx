@@ -25,8 +25,8 @@ export default function BranchDealsPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">案件一覧</h1>
-          <p className="text-sm text-gray-500 mt-1">自店の案件一覧</p>
+          <h1 className="text-2xl font-bold text-slate-100">案件一覧</h1>
+          <p className="text-sm text-slate-400 mt-1">自店の案件一覧</p>
         </div>
         <Link href="/branch/deals/new">
           <Button>
@@ -40,7 +40,7 @@ export default function BranchDealsPage() {
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
                 placeholder="案件番号・取引先で検索"
                 className="pl-9"
@@ -54,33 +54,33 @@ export default function BranchDealsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">案件番号</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">取引先名</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">業務種別</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">ステータス</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">手数料額</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">作成日時</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">操作</th>
+                <tr className="border-b border-cyber-border/30 bg-cyber-surface/50">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">案件番号</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">取引先名</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">業務種別</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">ステータス</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">手数料額</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">作成日時</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">操作</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((deal) => (
-                  <tr key={deal.dealId} className="border-b hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs">{deal.dealNo}</td>
-                    <td className="px-4 py-3 font-medium">{deal.input.customerInfo.customerName}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                  <tr key={deal.dealId} className="border-b border-cyber-border/20 hover:bg-cyber-surface/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-300">{deal.dealNo}</td>
+                    <td className="px-4 py-3 font-medium text-slate-200">{deal.input.customerInfo.customerName}</td>
+                    <td className="px-4 py-3 text-slate-400">
                       {deal.businessType === "PREPAY" ? "期限前弁済" : "仕切レート"}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={deal.status} />
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">
                       {deal.result
                         ? new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" }).format(deal.result.prepaymentFee)
                         : "―"}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{formatDateTime(deal.createdAt)}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{formatDateTime(deal.createdAt)}</td>
                     <td className="px-4 py-3">
                       <Link href={`/branch/deals/${deal.dealId}/result`}>
                         <Button size="sm" variant="outline">詳細</Button>
@@ -90,7 +90,7 @@ export default function BranchDealsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-400">案件がありません</td>
+                    <td colSpan={7} className="px-4 py-8 text-center text-slate-500">案件がありません</td>
                   </tr>
                 )}
               </tbody>

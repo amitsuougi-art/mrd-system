@@ -24,14 +24,14 @@ export default function HqDealsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">案件一覧（全店）</h1>
-        <p className="text-sm text-gray-500 mt-1">全営業店の案件一覧</p>
+        <h1 className="text-2xl font-bold text-slate-100">案件一覧（全店）</h1>
+        <p className="text-sm text-slate-400 mt-1">全営業店の案件一覧</p>
       </div>
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input placeholder="案件番号・取引先で検索" className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
@@ -40,27 +40,27 @@ export default function HqDealsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">案件番号</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">営業店</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">取引先名</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">ステータス</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">手数料額</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">更新日時</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">操作</th>
+                <tr className="border-b border-cyber-border/30 bg-cyber-surface/50">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">案件番号</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">営業店</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">取引先名</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">ステータス</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">手数料額</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">更新日時</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">操作</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((deal) => (
-                  <tr key={deal.dealId} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3 font-mono text-xs">{deal.dealNo}</td>
-                    <td className="px-4 py-3 text-gray-600">{deal.input.customerInfo.branchCode}店</td>
-                    <td className="px-4 py-3 font-medium">{deal.input.customerInfo.customerName}</td>
+                  <tr key={deal.dealId} className="border-b border-cyber-border/20 hover:bg-cyber-surface/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-300">{deal.dealNo}</td>
+                    <td className="px-4 py-3 text-slate-400">{deal.input.customerInfo.branchCode}店</td>
+                    <td className="px-4 py-3 font-medium text-slate-200">{deal.input.customerInfo.customerName}</td>
                     <td className="px-4 py-3"><StatusBadge status={deal.status} /></td>
-                    <td className="px-4 py-3 text-right font-mono">
+                    <td className="px-4 py-3 text-right font-mono text-slate-300">
                       {deal.result ? new Intl.NumberFormat("ja-JP", {style: "currency", currency: "JPY"}).format(deal.result.prepaymentFee) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{formatDateTime(deal.updatedAt)}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{formatDateTime(deal.updatedAt)}</td>
                     <td className="px-4 py-3">
                       <Link href={`/headquarters/deals/${deal.dealId}/review`}>
                         <Button size="sm" variant="outline">詳細・承認</Button>
@@ -68,6 +68,11 @@ export default function HqDealsPage() {
                     </td>
                   </tr>
                 ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-8 text-center text-slate-500">案件がありません</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

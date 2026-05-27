@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --background: 215 40% 5%;
+    --foreground: 210 40% 90%;
+    --card: 215 35% 10%;
+    --card-foreground: 210 40% 90%;
+    --popover: 215 35% 8%;
+    --popover-foreground: 210 40% 90%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 215 40% 5%;
+    --secondary: 215 30% 15%;
+    --secondary-foreground: 210 40% 80%;
+    --muted: 215 30% 12%;
+    --muted-foreground: 215 20% 50%;
+    --accent: 195 100% 50%;
+    --accent-foreground: 215 40% 5%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 215 30% 18%;
+    --input: 215 30% 14%;
+    --ring: 195 100% 50%;
     --radius: 0.5rem;
   }
 }
@@ -32,7 +32,54 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-cyber-bg text-slate-200;
     font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background-image:
+      linear-gradient(rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 200, 255, 0.025) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% -10%, rgba(0, 200, 255, 0.1) 0%, transparent 60%);
+    background-size: 40px 40px, 40px 40px, 100% 100%;
+    background-attachment: fixed;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070d1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a3a5c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 200, 255, 0.3);
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(13, 31, 54, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(26, 58, 92, 0.6);
+  }
+  .glass-bright {
+    background: rgba(13, 31, 54, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 200, 255, 0.15);
+  }
+  .neon-text {
+    color: #00c8ff;
+    text-shadow: 0 0 12px rgba(0, 200, 255, 0.5);
+  }
+  .neon-border {
+    border-color: #00c8ff;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.3);
+  }
+  .cyber-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.3), transparent);
   }
 }

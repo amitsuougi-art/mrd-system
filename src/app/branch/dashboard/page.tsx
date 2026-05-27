@@ -40,8 +40,8 @@ export default function BranchDashboardPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">営業店ダッシュボード</h1>
-        <p className="text-sm text-gray-500 mt-1">ようこそ、{currentUser?.name}さん（{currentUser?.branchName}）</p>
+        <h1 className="text-2xl font-bold text-slate-100">営業店ダッシュボード</h1>
+        <p className="text-slate-400 text-sm mt-1">ようこそ、{currentUser?.name}さん（{currentUser?.branchName}）</p>
       </div>
 
       {/* Summary Cards */}
@@ -77,16 +77,19 @@ export default function BranchDashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/branch/deals/new">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow bg-bank-primary text-white border-0">
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow border-0"
+            style={{ background: "linear-gradient(135deg, #0a2040 0%, #0d2d50 100%)", border: "1px solid rgba(0,200,255,0.25)" }}
+          >
             <CardContent className="p-6 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <PlusCircle className="h-5 w-5" />
-                  <span className="font-semibold text-lg">期限前弁済手数料 新規依頼</span>
+                  <PlusCircle className="h-5 w-5 text-cyber-cyan" />
+                  <span className="font-semibold text-lg text-white">期限前弁済手数料 新規依頼</span>
                 </div>
-                <p className="text-sm text-blue-200">固定金利融資の期限前弁済手数料を試算する</p>
+                <p className="text-sm text-slate-400">固定金利融資の期限前弁済手数料を試算する</p>
               </div>
-              <ArrowRight className="h-6 w-6 text-blue-200" />
+              <ArrowRight className="h-6 w-6 text-cyber-cyan" />
             </CardContent>
           </Card>
         </Link>
@@ -95,16 +98,16 @@ export default function BranchDashboardPage() {
           onClick={() => alert("仕切レート新規依頼機能は準備中です")}
           className="cursor-pointer"
         >
-          <Card className="hover:shadow-md transition-shadow border-bank-primary border-2">
+          <Card className="hover:border-cyber-cyan/20 transition-colors border-cyber-border">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <div className="flex items-center gap-2 mb-2 text-bank-primary">
+                <div className="flex items-center gap-2 mb-2 text-slate-300">
                   <FileText className="h-5 w-5" />
                   <span className="font-semibold text-lg">仕切レート新規依頼</span>
                 </div>
-                <p className="text-sm text-gray-500">融資の仕切レートを取得する</p>
+                <p className="text-sm text-slate-500">融資の仕切レートを取得する</p>
               </div>
-              <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">準備中</span>
+              <span className="text-slate-500 border border-slate-700 text-[10px] px-1.5 rounded">準備中</span>
             </CardContent>
           </Card>
         </div>
@@ -114,9 +117,9 @@ export default function BranchDashboardPage() {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">最近の案件</CardTitle>
+            <CardTitle className="text-base font-semibold text-slate-100">最近の案件</CardTitle>
             <Link href="/branch/deals">
-              <Button variant="ghost" size="sm">すべて見る →</Button>
+              <Button variant="ghost" size="sm" className="text-cyber-cyan hover:text-cyber-cyan hover:bg-cyber-cyan/10">すべて見る →</Button>
             </Link>
           </div>
         </CardHeader>
@@ -124,27 +127,27 @@ export default function BranchDashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">案件番号</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">取引先名</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">業務種別</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">ステータス</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">更新日時</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">操作</th>
+                <tr className="border-b border-cyber-border/30 bg-cyber-surface/50">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">案件番号</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">取引先名</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">業務種別</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">ステータス</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">更新日時</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-400 uppercase tracking-wider">操作</th>
                 </tr>
               </thead>
               <tbody>
                 {recentDeals.map((deal) => (
-                  <tr key={deal.dealId} className="border-b hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs">{deal.dealNo}</td>
-                    <td className="px-4 py-3 font-medium">{deal.input.customerInfo.customerName}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                  <tr key={deal.dealId} className="border-b border-cyber-border/20 hover:bg-cyber-surface/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-300">{deal.dealNo}</td>
+                    <td className="px-4 py-3 font-medium text-slate-200">{deal.input.customerInfo.customerName}</td>
+                    <td className="px-4 py-3 text-slate-400">
                       {deal.businessType === "PREPAY" ? "期限前弁済" : "仕切レート"}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={deal.status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{formatDateTime(deal.updatedAt)}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{formatDateTime(deal.updatedAt)}</td>
                     <td className="px-4 py-3">
                       {deal.status === "CALCULATED" || deal.status === "APPROVED" ? (
                         <Link href={`/branch/deals/${deal.dealId}/result`}>
@@ -164,7 +167,7 @@ export default function BranchDashboardPage() {
                 ))}
                 {recentDeals.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400">案件がありません</td>
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">案件がありません</td>
                   </tr>
                 )}
               </tbody>
