@@ -32,7 +32,9 @@ export interface ParseResult {
 // PDF テキスト抽出
 // ─────────────────────────────────────────────────────────────
 export async function extractTextFromPdf(file: File): Promise<string> {
-  const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist");
+  // pdfjs-dist 4.x: legacy build を使用（webpack互換）
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const { GlobalWorkerOptions, getDocument } = pdfjsLib;
 
   // CDN ワーカーを使用（静的エクスポート環境で最も安定）
   GlobalWorkerOptions.workerSrc =
