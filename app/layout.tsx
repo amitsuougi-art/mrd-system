@@ -1,0 +1,23 @@
+import type { Metadata } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'MRD System - Market Rate Desk',
+  description: 'Fixed Rate Loan Management System',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="ja">
+      <body>
+        <div className="container">
+          {children}
+        </div>
+      </body>
+    </html>
+  );
+}
