@@ -120,7 +120,7 @@ function DbLookupSection({ onFound }: { onFound: (r: LoanRecord) => void }) {
           >
             <Database className="h-3.5 w-3.5" />
           </span>
-          勘定系DB照会
+          取引先検索
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -129,7 +129,7 @@ function DbLookupSection({ onFound }: { onFound: (r: LoanRecord) => void }) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
             <Input
               className="pl-9"
-              placeholder="CIF番号 / 取引先名 を入力して Enter"
+              placeholder="CIF番号または取引先名を入力して Enter"
               value={query}
               onChange={(e) => { setQuery(e.target.value); setStatus("idle"); }}
               onKeyDown={handleKeyDown}
@@ -155,7 +155,7 @@ function DbLookupSection({ onFound }: { onFound: (r: LoanRecord) => void }) {
         </div>
 
         <p className="text-xs text-slate-600">
-          ※ CIF番号・取引先名のいずれかで検索できます。ヒットした融資情報を各フィールドに自動入力します。
+          ※ CIF番号または取引先名で検索できます。ヒットした融資情報を各フィールドに自動入力します。
         </p>
 
         {/* 検索中 */}

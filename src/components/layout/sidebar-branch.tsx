@@ -9,7 +9,7 @@ const menuItems = [
   { href: "/branch/dashboard", label: "ダッシュボード", icon: Home },
   { href: "/branch/deals/new", label: "新規案件登録", icon: PlusCircle },
   { href: "/branch/deals", label: "案件一覧", icon: List },
-  { href: "/branch/market", label: "仕切レート確認", icon: TrendingUp },
+  { href: "/branch/market", label: "市場データ確認", icon: TrendingUp },
 ];
 
 export function SidebarBranch() {
