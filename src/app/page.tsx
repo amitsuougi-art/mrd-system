@@ -1,82 +1,143 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Zap, ArrowRight, AlertCircle } from "lucide-react";
+import { Zap, ArrowRight, AlertCircle, User } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { MOCK_USERS } from "@/lib/mock-data";
 
 export default function LoginPage() {
   const router = useRouter();
   const { setCurrentUser } = useAppStore();
+  const [name, setName] = useState("");
 
-  const loginAsBranch = () => {
+  const handleLogin = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    // 山田太郎 → 営業店
     const branchUser = MOCK_USERS.find((u) => u.role === "BRANCH_STAFF");
-    setCurrentUser(branchUser || MOCK_USERS[0]);
-    router.push("/branch/dashboard");
-  };
+    if (trimmed === "山田太郎" || trimmed === "山田 太郎") {
+      setCurrentUser(branchUser ?? MOCK_USERS[0]);
+      router.push("/branch/dashboard");
+      return;
+    }
 
-  const loginAsHq = () => {
-    const hqUser = MOCK_USERS.find((u) => u.role === "HQ_APPROVER");
-    setCurrentUser(hqUser || MOCK_USERS[2]);
+    // 既存ユーザーに一致する場合はそのユーザーを使う
+    const matched = MOCK_USERS.find((u) => u.name === trimmed || u.name.replace(" ", "") === trimmed);
+    if (matched) {
+      setCurrentUser(matched);
+      router.push("/headquarters/dashboard");
+      return;
+    }
+
+    // それ以外 → 本部担当者として動的生成
+    setCurrentUser({
+      userId: `u-${Date.now()}`,
+      employeeNo: "99999999",
+      name: trimmed,
+      email: `${trimmed}@bank.example.jp`,
+      role: "HQ_APPROVER",
+      branchCode: null,
+      branchName: null,
+    });
     router.push("/headquarters/dashboard");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleLogin();
+  };
+
   return (
-    <div className="min-h-screen bg-cyber-bg flex items-center justify-center p-4" style={{ background: "radial-gradient(ellipse at 50% 30%, #0a1f3d 0%, #070d1a 60%)" }}>
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: "radial-gradient(ellipse at 50% 30%, #0a1f3d 0%, #070d1a 60%)" }}
+    >
       <div className="w-full max-w-md">
-        {/* Logo area */}
+        {/* ロゴ */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 mb-4" style={{ boxShadow: "0 0 24px rgba(0,200,255,0.2)" }}>
+          <div
+            className="inline-flex items-center justify-center h-16 w-16 rounded-full mb-4"
+            style={{ background: "rgba(0,200,255,0.1)", border: "1px solid rgba(0,200,255,0.3)", boxShadow: "0 0 24px rgba(0,200,255,0.2)" }}
+          >
             <Zap className="h-8 w-8 text-cyber-cyan" />
           </div>
-          <h1 className="text-2xl font-bold" style={{ background: "linear-gradient(90deg, #ffffff 0%, #00c8ff 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <h1
+            className="text-2xl font-bold"
+            style={{ background: "linear-gradient(90deg, #ffffff 0%, #00c8ff 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+          >
             市場営業部 業務システム
           </h1>
-          <p className="text-slate-400 text-sm mt-2">固定金利融資 仕切レート算出 / 期限前弁済手数料算出</p>
-          <span className="inline-block mt-2 bg-cyber-amber/20 text-cyber-amber border border-cyber-amber/30 text-xs px-2 py-0.5 rounded">デモ版 v1.0</span>
+          <p className="text-slate-400 text-sm mt-2">固定金利融資 / 期限前弁済手数料算出</p>
+          <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded" style={{ background: "rgba(245,158,11,0.15)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}>
+            デモ版 v1.0
+          </span>
         </div>
 
-        {/* Card */}
-        <div className="bg-cyber-card/80 backdrop-blur-sm border border-cyber-border/60 rounded-xl p-8" style={{ boxShadow: "0 0 40px rgba(0,200,255,0.05)" }}>
-          <h2 className="text-base font-semibold text-slate-300 mb-6 text-center">システムへのログイン</h2>
-          <div className="space-y-4">
-            {/* Branch login button */}
-            <button
-              onClick={loginAsBranch}
-              className="w-full flex items-center justify-between px-5 py-4 bg-cyber-cyan text-cyber-bg font-bold rounded-lg hover:brightness-110 transition-all group"
-              style={{ boxShadow: "0 0 20px rgba(0,200,255,0.3)" }}
-            >
-              <div className="text-left">
-                <div className="font-semibold">行内SSO でログイン</div>
-                <div className="text-xs mt-0.5 opacity-70">営業店担当者（山田 太郎 / 横浜支店）</div>
-              </div>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+        {/* ログインカード */}
+        <div
+          className="rounded-xl p-8"
+          style={{ background: "rgba(13,31,54,0.85)", border: "1px solid rgba(0,200,255,0.15)", boxShadow: "0 0 40px rgba(0,200,255,0.06)" }}
+        >
+          <h2 className="text-base font-semibold text-slate-300 mb-6 text-center">お名前を入力してください</h2>
 
-            {/* HQ login button */}
+          {/* 名前入力 */}
+          <div className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="例：山田太郎"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-slate-200 placeholder-slate-600 text-sm outline-none transition-all"
+                style={{
+                  background: "rgba(11,22,40,0.8)",
+                  border: "1px solid rgba(0,200,255,0.2)",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "rgba(0,200,255,0.6)")}
+                onBlur={(e) => (e.target.style.borderColor = "rgba(0,200,255,0.2)")}
+                autoFocus
+              />
+            </div>
+
             <button
-              onClick={loginAsHq}
-              className="w-full flex items-center justify-between px-5 py-4 border border-cyber-cyan/30 text-cyber-cyan bg-transparent hover:bg-cyber-cyan/10 rounded-lg transition-all group"
+              onClick={handleLogin}
+              disabled={!name.trim()}
+              className="w-full flex items-center justify-between px-5 py-4 rounded-lg font-semibold text-sm transition-all group disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: name.trim() ? "#00c8ff" : "rgba(0,200,255,0.3)",
+                color: "#070d1a",
+                boxShadow: name.trim() ? "0 0 20px rgba(0,200,255,0.3)" : "none",
+              }}
             >
-              <div className="text-left">
-                <div className="font-medium">本部担当者としてログイン</div>
-                <div className="text-xs text-slate-500 mt-0.5">本部承認者（佐藤 花子）</div>
-              </div>
+              <span>ログイン</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
 
-          {/* Demo warning */}
-          <div className="mt-6 p-3 bg-cyber-amber/10 border border-cyber-amber/20 rounded-lg flex gap-2">
-            <AlertCircle className="h-4 w-4 text-cyber-amber/80 mt-0.5 shrink-0" />
-            <p className="text-xs text-cyber-amber/80">
-              これはデモアプリケーションです。実際の認証は行われません。計算ロジックは簡易版であり、実際の金融計算とは異なります。
+          {/* ヒント */}
+          <div className="mt-5 space-y-2">
+            <p className="text-[11px] text-slate-600 text-center">
+              ※ 山田太郎 → 営業店（申込）　／　それ以外 → 本部（承認）
+            </p>
+          </div>
+
+          {/* デモ注意 */}
+          <div
+            className="mt-5 p-3 rounded-lg flex gap-2"
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)" }}
+          >
+            <AlertCircle className="h-4 w-4 text-amber-400/80 mt-0.5 shrink-0" />
+            <p className="text-xs text-amber-400/80">
+              デモアプリケーションです。実際の認証は行われません。
             </p>
           </div>
         </div>
 
         <p className="text-center text-slate-600 text-xs mt-6">
-          © 2026 MILIZE株式会社 | 本番システムでは金融計算エンジンを使用
+          © 2026 MILIZE株式会社 | 本番システムでは行内SSOを使用
         </p>
       </div>
     </div>
